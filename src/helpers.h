@@ -10,6 +10,10 @@
 
 #define CENTER_LANE (LANE_WIDTH / 2.0)
 
+#define MPH_TO_MS(X) (X / 2.237)
+
+#define MS_TO_MPH(X) (X * 2.237)
+
 #define SIMULATION_STEP_LENGTH .02
 
 // for convenience

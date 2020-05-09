@@ -7,13 +7,11 @@ add_definitions(-std=c++11)
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
+file(GLOB SRC_FILES *.cpp)
 file(GLOB HEADERS *.h)
 file(GLOB HEADERS_HPP *.hpp)
-file(GLOB SRC_FILES *.cpp)
-
 
 set(sources ${SRC_FILES} ${HEADERS} ${HEADERS_HPP})
-
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 

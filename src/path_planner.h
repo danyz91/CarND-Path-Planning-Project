@@ -23,8 +23,8 @@ class PathPlanner {
   PathPlanner(Vehicle v, ReferencePath prev, ReferencePath curr);
   virtual ~PathPlanner();
 
-  void plan(double target_speed, double target_acceleration,
-            std::vector<double>& planning_x, std::vector<double>& planning_y);
+  void plan(double target_speed, std::vector<double>& planning_x,
+            std::vector<double>& planning_y);
 
   tk::spline s;
   ReferencePath previous_reference_path;

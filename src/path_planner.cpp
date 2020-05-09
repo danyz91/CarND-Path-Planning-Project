@@ -25,8 +25,7 @@ PathPlanner::~PathPlanner() {
   // TODO Auto-generated destructor stub
 }
 
-void PathPlanner::plan(double target_speed, double target_acceleration,
-                       std::vector<double>& planning_x,
+void PathPlanner::plan(double target_speed, std::vector<double>& planning_x,
                        std::vector<double>& planning_y) {
   // Setting up the spline points
   s.set_points(reference_path.anchor_points_x, reference_path.anchor_points_y);
@@ -59,8 +58,8 @@ void PathPlanner::plan(double target_speed, double target_acceleration,
 
   for (int i = 1; i <= NUM_TRAJECTORY_POINTS - previous_reference_path.size;
        i++) {
-    double N = (target_norm /
-                (SIMULATION_STEP_LENGTH * target_speed / target_acceleration));
+    double N =
+        (target_norm / (SIMULATION_STEP_LENGTH * MPH_TO_MS(target_speed)));
     double x_point = x_add_on + (target_x / N);
     double y_point = s(x_point);
 

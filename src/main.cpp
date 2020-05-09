@@ -12,6 +12,7 @@
 #include "json.hpp"
 #include "obstacle.h"
 #include "path_planner.h"
+#include "plotter.h"
 #include "reference_path.h"
 
 // for convenience
@@ -63,9 +64,11 @@ int main() {
   int lane = 1;
   double ref_vel = 0.0;  // near to 50mph
 
+  Plotter plotter;
+
   h.onMessage([&map_waypoints_x, &map_waypoints_y, &map_waypoints_s,
-               &map_waypoints_dx, &map_waypoints_dy, &lane,
-               &ref_vel](uWS::WebSocket<uWS::SERVER> ws, char *data,
+               &map_waypoints_dx, &map_waypoints_dy, &lane, &ref_vel,
+               &plotter](uWS::WebSocket<uWS::SERVER> ws, char *data,
                          size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -100,6 +103,8 @@ int main() {
           //   of the road.
           auto sensor_fusion = j[1]["sensor_fusion"];
           json msgJson;
+
+          plotter.reset();
 
           std::vector<double> prev_path_x, prev_path_y;
           for (int i = 0; i < previous_path_x.size(); i++) {
@@ -169,10 +174,6 @@ int main() {
             ref_vel += .224;
           }
 
-          /**
-           * TODO: define a path made up of (x,y) points that the car will visit
-           *   sequentially every .02 seconds
-           */
           ReferencePath reference_path(map_waypoints_x, map_waypoints_y,
                                        map_waypoints_s);
           reference_path.computeReferencePath(prev_ref_path, ego, lane);
@@ -182,7 +183,11 @@ int main() {
           std::vector<double> ego_trajectory_x;
           std::vector<double> ego_trajectory_y;
 
-          path_planner.plan(ref_vel, .224, ego_trajectory_x, ego_trajectory_y);
+          path_planner.plan(ref_vel, ego_trajectory_x, ego_trajectory_y);
+
+          // Plotting
+          plotter.plotMap(map_waypoints_x, map_waypoints_y);
+          plotter.show();
 
           msgJson["next_x"] = ego_trajectory_x;
           msgJson["next_y"] = ego_trajectory_y;
