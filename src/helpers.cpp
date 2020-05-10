@@ -153,6 +153,6 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s,
 }
 
 bool is_on_lane(double d, double test_lane) {
-  return (d < (CENTER_LANE + LANE_WIDTH * test_lane + CENTER_LANE) &&
-          d > (CENTER_LANE + LANE_WIDTH * test_lane - CENTER_LANE));
+  return (d < (CENTER_LINE_REF + LANE_WIDTH * test_lane + CENTER_LINE_REF) &&
+          d > (CENTER_LINE_REF + LANE_WIDTH * test_lane - CENTER_LINE_REF));
 }

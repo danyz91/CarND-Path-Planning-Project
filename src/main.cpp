@@ -13,16 +13,13 @@
 #include "obstacle.h"
 #include "path_planner.h"
 #include "plotter.h"
+#include "prediction.h"
 #include "reference_path.h"
 
 // for convenience
 using nlohmann::json;
 using std::string;
 using std::vector;
-
-// enum Lanes { RIGHT_LANE = 0, CENTER_LANE = 1, LEFT_LANE = 2 };
-
-#define MAX_SPEED 49.5
 
 int main() {
   uWS::Hub h;
@@ -61,13 +58,12 @@ int main() {
     map_waypoints_dy.push_back(d_y);
   }
 
-  int lane = 1;
-  double ref_vel = 0.0;  // near to 50mph
+  EgoVehicle ego;
 
   Plotter plotter;
 
   h.onMessage([&map_waypoints_x, &map_waypoints_y, &map_waypoints_s,
-               &map_waypoints_dx, &map_waypoints_dy, &lane, &ref_vel,
+               &map_waypoints_dx, &map_waypoints_dy, &ego,
                &plotter](uWS::WebSocket<uWS::SERVER> ws, char *data,
                          size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -104,7 +100,8 @@ int main() {
           auto sensor_fusion = j[1]["sensor_fusion"];
           json msgJson;
 
-          plotter.reset();
+          // plotter.reset();
+          std::vector<Obstacle> obstacles;
 
           std::vector<double> prev_path_x, prev_path_y;
           for (int i = 0; i < previous_path_x.size(); i++) {
@@ -113,10 +110,8 @@ int main() {
           }
           ReferencePath prev_ref_path(prev_path_x, prev_path_y);
 
-          EgoVehicle ego(car_x, car_y, car_s, car_d, deg2rad(car_yaw),
-                         car_speed, lane, 0.0);
-
-          std::vector<Obstacle> obstacles;
+          ego.update(car_x, car_y, car_s, car_d, deg2rad(car_yaw), car_speed,
+                     prev_ref_path, end_path_s, end_path_d);
 
           for (int i = 0; i < sensor_fusion.size(); i++) {
             double curr_obs_id = sensor_fusion[i][0];
@@ -126,7 +121,8 @@ int main() {
             double curr_obs_d = sensor_fusion[i][6];
             double curr_obs_vx = sensor_fusion[i][3];
             double curr_obs_vy = sensor_fusion[i][4];
-
+            // Also association information is computed when an
+            // obstacle is created
             Obstacle curr_obstacle(curr_obs_id, curr_obs_x, curr_obs_y,
                                    curr_obs_s, curr_obs_d, curr_obs_vx,
                                    curr_obs_vy);
@@ -134,60 +130,39 @@ int main() {
             obstacles.push_back(curr_obstacle);
           }
 
-          // ######################################################
-          // SENSOR FUSION
-          // ######################################################
+          // Predict obstacle future location
+          // Will update s attribute of obstacle
+          Predictor predictor;
+          predictor.predict(obstacles, prev_ref_path.size);
 
-          if (prev_ref_path.size > 0) {
-            // Update car s with last point in path
-            ego.s = end_path_s;
-          }
+          // Compute new target speed and target lane
+          ego.selectBehavior(obstacles);
 
-          bool too_close = false;
+          std::cout << "---- DECISION START ----" << std::endl;
+          std::cout << "Decision taken!" << std::endl;
+          std::cout << "Target speed: " << ego.target_speed << std::endl;
+          std::cout << "Target lane: " << ego.target_lane << std::endl;
+          std::cout << "---- DECISION END ----" << std::endl;
 
-          // find ref_v of obstacle to use
-          for (Obstacle obs : obstacles) {
-            // car is in my lane
-
-            if (is_on_lane(obs.d, lane)) {
-              double curr_obs_s = obs.s;
-
-              // Move forward obs according to path state
-              curr_obs_s += ((double)prev_ref_path.size *
-                             SIMULATION_STEP_LENGTH * obs.speed);
-
-              // If is in front of me and the gap is less than 30m
-              if ((curr_obs_s > ego.s) && (curr_obs_s - ego.s) < 30) {
-                too_close = true;
-
-                // Try to aggressively going on left
-                if (lane > 0) {
-                  lane = 0;
-                }
-              }
-            }
-          }
-
-          if (too_close) {
-            ref_vel -= .224;  // 5m/s^2
-          } else if (ref_vel < MAX_SPEED) {
-            ref_vel += .224;
-          }
-
+          // Creating and building ReferencePath
           ReferencePath reference_path(map_waypoints_x, map_waypoints_y,
                                        map_waypoints_s);
-          reference_path.computeReferencePath(prev_ref_path, ego, lane);
 
+          reference_path.computeReferencePath(prev_ref_path, ego,
+                                              ego.target_lane);
+
+          // Create smooth trajectory
           PathPlanner path_planner(ego, prev_ref_path, reference_path);
 
           std::vector<double> ego_trajectory_x;
           std::vector<double> ego_trajectory_y;
 
-          path_planner.plan(ref_vel, ego_trajectory_x, ego_trajectory_y);
+          path_planner.plan(ego.target_speed, ego_trajectory_x,
+                            ego_trajectory_y);
 
           // Plotting
-          plotter.plotMap(map_waypoints_x, map_waypoints_y);
-          plotter.show();
+          // plotter.plotMap(map_waypoints_s, map_waypoints_x, map_waypoints_y);
+          // plotter.show();
 
           msgJson["next_x"] = ego_trajectory_x;
           msgJson["next_y"] = ego_trajectory_y;

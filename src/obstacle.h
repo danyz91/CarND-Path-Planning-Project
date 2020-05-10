@@ -8,6 +8,8 @@
 #ifndef OBSTACLE_H_
 #define OBSTACLE_H_
 
+#include <limits.h>
+
 #include "vehicle.h"
 
 class Obstacle : public Vehicle {
@@ -18,7 +20,6 @@ class Obstacle : public Vehicle {
   Obstacle();
   virtual ~Obstacle();
 
- private:
   int id;
 };
 

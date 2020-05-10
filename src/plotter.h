@@ -13,14 +13,16 @@
 #include <vector>
 
 #include "gnuplot_i.hpp"
+#include "helpers.h"
 
 class Plotter {
  public:
   Plotter();
   virtual ~Plotter();
 
-  void plotMap(std::vector<double> waypoints_x,
-               std::vector<double> waypoints_y);
+  void plotMap(const std::vector<double> &maps_s,
+               const std::vector<double> &maps_x,
+               const std::vector<double> &maps_y);
 
   void show();
   void reset();
@@ -39,10 +41,26 @@ Plotter::~Plotter() {
   // TODO Auto-generated destructor stub
 }
 
-void Plotter::plotMap(std::vector<double> waypoints_x,
-                      std::vector<double> waypoints_y) {
+void Plotter::plotMap(const std::vector<double> &maps_s,
+                      const std::vector<double> &maps_x,
+                      const std::vector<double> &maps_y) {
+  int num_lanes = 3;
+
+  std::vector<double> map_x;
+  std::vector<double> map_y;
+
+  for (int i = 0; i < maps_s.size(); i++) {
+    for (int j = 0; j < num_lanes; j++) {
+      std::vector<double> curr_point =
+          getXY(maps_s[i], j, maps_s, maps_x, maps_y);
+      map_x.push_back(curr_point[0]);
+      map_y.push_back(curr_point[1]);
+    }
+  }
+
   gplot.set_style("lines");
-  gplot.plot_xy(waypoints_x, waypoints_y);
+
+  gplot.plot_xy(map_x, map_y);
 }
 
 // void Plotter::plotVehicle(Vehicle v) {

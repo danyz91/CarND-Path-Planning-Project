@@ -22,6 +22,7 @@ Obstacle::Obstacle(int id, double x, double y, double s, double d, double vx,
   this->vy = vy;
   this->speed = sqrt((vx * vx) + (vy * vy));
   this->yaw = atan2(y, x);
+  this->lane = Vehicle::associate_vehicle(d);
 }
 
 Obstacle::~Obstacle() {

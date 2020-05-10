@@ -38,8 +38,6 @@ void ReferencePath::computeReferencePath(ReferencePath previous_path,
   // LAter we will interpolate these waypoints with a spline and
   // Fill it with more points that control
 
-  std::cout << "Ego: " << vehicle.to_string() << std::endl;
-
   // Reference x,y, yaw status
   double ref_x = vehicle.x;
   double ref_y = vehicle.y;
@@ -84,13 +82,13 @@ void ReferencePath::computeReferencePath(ReferencePath previous_path,
   // In Frenet add evenly 30m spaced points ahead of
   // the starting reference
   vector<double> next_wp_0 =
-      getXY(vehicle.s + 30, (CENTER_LANE + LANE_WIDTH * target_lane),
+      getXY(vehicle.s + 30, (CENTER_LINE_REF + LANE_WIDTH * target_lane),
             map_waypoints_s, map_waypoints_x, map_waypoints_y);
   vector<double> next_wp_1 =
-      getXY(vehicle.s + 60, (CENTER_LANE + LANE_WIDTH * target_lane),
+      getXY(vehicle.s + 60, (CENTER_LINE_REF + LANE_WIDTH * target_lane),
             map_waypoints_s, map_waypoints_x, map_waypoints_y);
   vector<double> next_wp_2 =
-      getXY(vehicle.s + 90, (CENTER_LANE + LANE_WIDTH * target_lane),
+      getXY(vehicle.s + 90, (CENTER_LINE_REF + LANE_WIDTH * target_lane),
             map_waypoints_s, map_waypoints_x, map_waypoints_y);
 
   anchor_points_x.push_back(next_wp_0[0]);

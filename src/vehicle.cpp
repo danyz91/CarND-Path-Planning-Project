@@ -25,6 +25,7 @@ std::string Vehicle::to_string() {
   res += "Speed: " + std::to_string(speed) + "\n";
   res += "Vx: " + std::to_string(vx) + "\n";
   res += "Vy: " + std::to_string(vy) + "\n";
+  res += "Lane: " + std::to_string(lane) + "\n";
 
   return res;
 }
