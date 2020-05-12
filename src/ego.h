@@ -12,7 +12,7 @@
 
 #define DEFAULT_MAX_SPEED 49.5
 #define DEFAULT_GAP_FRONT 30.0
-#define DEFAULT_GAP_REAR 50.0
+#define DEFAULT_GAP_REAR 30.0
 
 class EgoVehicle : public Vehicle {
  public:
@@ -40,9 +40,9 @@ class EgoVehicle : public Vehicle {
 
   bool evaluateLaneChange(std::vector<Obstacle>& obstacles, Lane target_lane);
 
-  bool handleLeftLane(std::vector<Obstacle>& obstacles, Lane& target_lane);
-  bool handleCenterLane(std::vector<Obstacle>& obstacles, Lane& target_lane);
-  bool handleRightLane(std::vector<Obstacle>& obstacles, Lane& target_lane);
+  std::vector<Lane> get_adjacent_lanes(Lane lane);
+
+  double rss_safety_distance(Vehicle rear, Vehicle front);
 
   double a, max_acceleration;
 
