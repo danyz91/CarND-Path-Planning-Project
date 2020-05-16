@@ -97,6 +97,7 @@ bool EgoVehicle::evaluateLaneChange(std::vector<Obstacle>& obstacles,
     return !is_whitin_safety_gap(side_front, DEFAULT_GAP_FRONT) &&
            !is_whitin_safety_gap(side_back, DEFAULT_GAP_REAR);
   }
+  return false;
 }
 
 std::vector<Lane> EgoVehicle::get_adjacent_lanes(Lane lane) {

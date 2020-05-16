@@ -1,4 +1,4 @@
-project(Path_Planning_Project)
+project(Path_Planning)
 
 cmake_minimum_required (VERSION 3.5)
 
@@ -7,9 +7,9 @@ add_definitions(-std=c++11)
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
-file(GLOB SRC_FILES *.cpp)
-file(GLOB HEADERS *.h)
-file(GLOB HEADERS_HPP *.hpp)
+file(GLOB SRC_FILES ./src/*.cpp)
+file(GLOB HEADERS ./src/*.h)
+file(GLOB HEADERS_HPP ./src/*.hpp)
 
 set(sources ${SRC_FILES} ${HEADERS} ${HEADERS_HPP})
 

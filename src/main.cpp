@@ -137,11 +137,8 @@ int main() {
           // Compute new target speed and target lane
           ego.selectBehavior(obstacles);
 
-          std::cout << "---- DECISION START ----" << std::endl;
-          std::cout << "Decision taken!" << std::endl;
           std::cout << "Target speed: " << ego.target_speed << std::endl;
           std::cout << "Target lane: " << ego.target_lane << std::endl;
-          std::cout << "---- DECISION END ----" << std::endl;
 
           // Creating and building ReferencePath
           ReferencePath reference_path(map_waypoints_x, map_waypoints_y,
