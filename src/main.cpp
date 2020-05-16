@@ -12,7 +12,6 @@
 #include "json.hpp"
 #include "obstacle.h"
 #include "path_planner.h"
-#include "plotter.h"
 #include "prediction.h"
 #include "reference_path.h"
 
@@ -60,12 +59,10 @@ int main() {
 
   EgoVehicle ego;
 
-  Plotter plotter;
-
   h.onMessage([&map_waypoints_x, &map_waypoints_y, &map_waypoints_s,
-               &map_waypoints_dx, &map_waypoints_dy, &ego,
-               &plotter](uWS::WebSocket<uWS::SERVER> ws, char *data,
-                         size_t length, uWS::OpCode opCode) {
+               &map_waypoints_dx, &map_waypoints_dy,
+               &ego](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
+                     uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -95,14 +92,11 @@ int main() {
           double end_path_s = j[1]["end_path_s"];
           double end_path_d = j[1]["end_path_d"];
 
-          // Sensor Fusion Data, a list of all other cars on the same side
-          //   of the road.
+          // Sensor Fusion Data, a list of all other cars
           auto sensor_fusion = j[1]["sensor_fusion"];
           json msgJson;
 
-          // plotter.reset();
-          std::vector<Obstacle> obstacles;
-
+          // Previous reference path computation
           std::vector<double> prev_path_x, prev_path_y;
           for (int i = 0; i < previous_path_x.size(); i++) {
             prev_path_x.push_back(previous_path_x[i]);
@@ -110,8 +104,12 @@ int main() {
           }
           ReferencePath prev_ref_path(prev_path_x, prev_path_y);
 
+          // Update ego with current information
           ego.update(car_x, car_y, car_s, car_d, deg2rad(car_yaw), car_speed,
                      prev_ref_path, end_path_s, end_path_d);
+
+          // Obstacle population
+          std::vector<Obstacle> obstacles;
 
           for (int i = 0; i < sensor_fusion.size(); i++) {
             double curr_obs_id = sensor_fusion[i][0];
@@ -135,6 +133,7 @@ int main() {
           Predictor predictor;
           predictor.predict(obstacles, prev_ref_path.size);
 
+          // Behavior Planning
           // Compute new target speed and target lane
           ego.selectBehavior(obstacles);
 
@@ -159,10 +158,6 @@ int main() {
 
           path_planner.plan(ego.target_speed, ego_trajectory_x,
                             ego_trajectory_y);
-
-          // Plotting
-          // plotter.plotMap(map_waypoints_s, map_waypoints_x, map_waypoints_y);
-          // plotter.show();
 
           msgJson["next_x"] = ego_trajectory_x;
           msgJson["next_y"] = ego_trajectory_y;

@@ -26,12 +26,16 @@ class Vehicle {
   double s;
   double d;
   double speed;
-  double vx;
-  double vy;
+  double vx;  // X axis component of velocity
+  double vy;  // Y axis component of velocity
   Lane lane;
 
   std::string to_string();
 
+  /**
+   * The function associate current vehicle with one of possible lanes
+   * basing on passed d value
+   */
   static Lane associate_vehicle(double d) {
     for (int i = 0; i < NUM_LANES; i++) {
       if (is_on_lane(d, i)) {

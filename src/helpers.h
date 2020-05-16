@@ -16,6 +16,8 @@
 
 #define SIMULATION_STEP_LENGTH .02
 
+#define DELTA_MPH_FROM_MS2(X) (SIMULATION_STEP_LENGTH * MS_TO_MPH(X))  // mph
+
 enum Lane { LEFT_LANE = 0, CENTER_LANE = 1, RIGHT_LANE = 2, NUM_LANES = 3 };
 
 // for convenience
